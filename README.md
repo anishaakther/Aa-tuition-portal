@@ -1,3 +1,12 @@
+# v10.15.13 — timetable course selection
+
+- Timetable lessons now store the exact `student_course_id` for each selected student.
+- Multi-course students can choose GCSE Mathematics, GCSE Combined Science, A-level Mathematics, etc. directly in the lesson editor.
+- Group lessons can link each student to the correct course.
+- Timetable cards display the linked course.
+- Student Home filters the next timetable lesson to the selected course when course data is available.
+- No new Supabase migration is required because `timetable_session_students.student_course_id` already exists.
+
 ## v10.15.1
 
 - Classwork is now scoped to the selected student course. Maths materials/homework no longer appear under Combined Science and vice versa.
