@@ -14,6 +14,8 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 
 .lessonCardList,.studentCardList,.studentDirectoryCards{display:grid;gap:12px}.lessonMobileCard,.studentProgressCard,.directoryCard{border:1px solid var(--line);border-radius:14px;background:#fff;padding:15px;color:var(--ink);text-decoration:none}.lessonMobileTop,.studentProgressTop,.directoryTop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.lessonMobileTop b,.lessonMobileTop span,.studentProgressTop b,.studentProgressTop span,.directoryTop b,.directoryTop span{display:block}.lessonMobileTop span,.studentProgressTop span,.directoryTop span{font-size:11px;color:var(--muted);margin-top:3px}.lessonMobileCard h3{font-size:17px;margin:14px 0 4px}.lessonMeta{font-size:11px;color:var(--muted);margin-bottom:12px}.lessonBlock{margin-top:12px;padding-top:12px;border-top:1px solid #efedf3}.lessonBlock>span{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#858396}.lessonBlock p{font-size:13px;line-height:1.55;color:#5e5c6c;margin:5px 0 0}.lessonBlock.homework{padding:11px 12px;border:0;border-left:3px solid var(--purple);border-radius:9px;background:#f8f7fd}.lessonBlock.homework>span{color:var(--purple)}
 .studentProgressGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 12px}.studentProgressGrid div{background:#f8f7fd;border-radius:10px;padding:10px}.studentProgressGrid span{display:block;color:var(--muted);font-size:10px}.studentProgressGrid strong{display:block;margin-top:4px;font-size:17px}.directoryMetrics{display:flex;flex-wrap:wrap;gap:10px 16px;margin:14px 0;color:var(--muted);font-size:12px}.directoryMetrics b{color:var(--ink)}
+/* v10.15.17: visibility guard */
+.mobileOnly{display:none!important}
 
 @media(max-width:760px){
   .desktopOnly{display:none!important}.mobileOnly{display:grid!important}
@@ -416,3 +418,6 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 .disabledField{opacity:.62}
 
 .lessonLogFilters{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}.lessonLogFilters label{min-width:220px;display:grid;gap:7px;font-weight:700}.pageIntro{margin:8px 0 0;color:var(--muted,#6f6d82);max-width:720px}@media(max-width:700px){.lessonLogFilters{display:grid}.lessonLogFilters label{min-width:0}.pageHead .pageIntro{font-size:.95rem}}
+
+/* v10.15.16 lesson deletion */
+.rowCard.lesson{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.lessonRowContent{min-width:0;flex:1}.lessonDeleteButton{flex:0 0 auto}.lessonCardActions{display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#e5e7eb)}

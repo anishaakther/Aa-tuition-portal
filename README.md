@@ -1,3 +1,10 @@
+## v10.15.17 — directory + lesson editing
+
+- Fixes duplicate Student directory rendering by separating desktop table and mobile cards correctly.
+- Adds Edit controls for lesson records on student profiles and the master Lesson log.
+- Lesson edits can update course, date, topic, attendance, duration, notes and homework.
+- No database migration required.
+
 # v10.15.13 — timetable course selection
 
 - Timetable lessons now store the exact `student_course_id` for each selected student.
@@ -206,3 +213,10 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 ## v10.15.15 routing fix
 
 - Adds a Vercel SPA rewrite so direct visits and refreshes on client-side routes such as `/students/...`, `/timetable`, `/lessons`, and `/reports` load the React app instead of returning Vercel 404.
+
+
+## v10.15.16 lesson deletion
+- Tutors can delete individual lesson records from a student's course-scoped Lesson log.
+- The master Lessons page also exposes a delete action on desktop and mobile.
+- Deletion requires confirmation and removes only the selected lesson record.
+- No database migration is required.
