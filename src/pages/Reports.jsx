@@ -7,25 +7,32 @@ const masteryLabel = status => ({ red:'Developing', amber:'Progressing', green:'
 const formatDate = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'
 
 export default function Reports(){
- const [students,setStudents]=useState([]),[id,setId]=useState(''),[report,setReport]=useState(null),[loading,setLoading]=useState(false),[error,setError]=useState('')
+ const [students,setStudents]=useState([]),[id,setId]=useState(''),[courses,setCourses]=useState([]),[courseId,setCourseId]=useState(''),[report,setReport]=useState(null),[loading,setLoading]=useState(false),[error,setError]=useState('')
  useEffect(()=>{supabase.from('students').select('*').eq('active',true).order('name').then(({data,error})=>{setStudents(data||[]);if(error)setError(error.message)})},[])
+ useEffect(()=>{let cancelled=false;(async()=>{setReport(null);setCourses([]);setCourseId('');if(!id)return;const {data,error}=await supabase.from('student_courses').select('*').eq('student_id',id).order('created_at');if(cancelled)return;if(error){setError(error.message);return}const rows=data||[];setCourses(rows);setCourseId(rows[0]?.id||'')})().catch(e=>!cancelled&&setError(e.message));return()=>{cancelled=true}},[id])
  const selected=useMemo(()=>students.find(x=>x.id===id),[students,id])
+ const activeCourse=useMemo(()=>courses.find(x=>x.id===courseId)||courses[0]||null,[courses,courseId])
  const generate=async()=>{
-  if(!selected)return
+  if(!selected||!activeCourse)return
   setLoading(true);setError('')
-  const [{data:l,error:le},{data:a,error:ae},{data:t,error:te}]=await Promise.all([
+  const [{data:l,error:le},{data:a,error:ae},{data:t,error:te},{data:cm,error:cme},{data:cr,error:cre}]=await Promise.all([
    supabase.from('lessons').select('*').eq('student_id',id).order('lesson_date',{ascending:false}),
    supabase.from('assessments').select('*').eq('student_id',id).order('taken_on',{ascending:false}),
-   supabase.from('topic_progress').select('*').eq('student_id',id).order('topic')
+   supabase.from('topic_progress').select('*').eq('student_id',id).order('topic'),
+   supabase.from('student_course_modules').select('*').eq('student_course_id',activeCourse.id),
+   supabase.from('curriculum_topics').select('*').eq('course',activeCourse.course).order('position')
   ])
-  const e=le||ae||te;if(e){setError(e.message);setLoading(false);return}
-  const lessons=l||[], assessments=a||[], topics=t||[]
+  const e=le||ae||te||cme||cre;if(e){setError(e.message);setLoading(false);return}
+  const allLessons=l||[], assessments=a||[], allTopics=t||[]
+  const lessons=allLessons.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&courses.length===1))
+  const topics=allTopics.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&courses.length===1))
   const valid=lessons.filter(x=>x.attendance!=='cancelled')
   const attendance=valid.length?Math.round(valid.filter(x=>x.attendance==='present').length/valid.length*100):null
-  const student=progressSnapshot(selected,topics)
+  const viewStudent={...selected,...activeCourse,id:selected.id,curriculum_modules:(cm||[]).map(x=>x.module),curriculum_rows:cr||[]}
+  const student=progressSnapshot(viewStudent,topics)
   const progressConfigured=student.automatic||Number(student.progress)!==0||Number(student.expected_progress)!==0
   const progressStatus=student.expectedConfigured?statusFor(student):null
-  const areas=student.automatic?areaProgressFor(selected,topics):[]
+  const areas=student.automatic?areaProgressFor(viewStudent,topics):[]
   const strengths=[...topics].filter(x=>x.status==='green').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0)).slice(0,3)
   const focus=[...topics].filter(x=>x.status==='amber'||x.status==='red').sort((a,b)=>{const rank={amber:0,red:1};return rank[a.status]-rank[b.status]||new Date(b.updated_at||0)-new Date(a.updated_at||0)}).slice(0,3)
   setReport({student,lessons,assessments,topics,areas,strengths,focus,attendance,progressConfigured,progressStatus,generated:new Date()})
@@ -37,12 +44,12 @@ export default function Reports(){
   const text=`${report.student.name} – ${report.student.course}\nTarget: ${report.student.target_grade||'—'} | Working: ${report.student.working_grade||'—'}\nAttendance: ${report.attendance==null?'No lessons recorded':`${report.attendance}%`}${latest?`\nLatest assessment: ${latest.title} – ${Math.round(latest.score/latest.total*100)}%`:''}\n\n${report.student.tutor_update||''}`
   try{await navigator.share({title:`${report.student.name} – AA Tuition progress report`,text})}catch{}
  }
- return <><div className="pageHead noPrint"><div><span className="eyebrow">REPORTS</span><h1>Parent progress reports</h1></div></div>{error&&<div className="errorBox">{error}</div>}<section className="panel reportBuilder noPrint"><label>Student<select value={id} onChange={e=>{setId(e.target.value);setReport(null)}}><option value="">Select a student</option>{students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label><button className="primary btn" disabled={!id||loading} onClick={generate}>{loading?'Generating…':'Generate report'}</button></section>
- {report?<ReportPreview report={report} onShare={share}/>:<section className="reportEmpty noPrint"><span className="eyebrow">PREVIEW</span><h3>Parent-friendly report</h3><p>Select a student and generate a report.</p></section>}</>
+ return <><div className="pageHead noPrint"><div><span className="eyebrow">REPORTS</span><h1>Parent progress reports</h1></div></div>{error&&<div className="errorBox">{error}</div>}<section className="panel reportBuilder noPrint"><label>Student<select value={id} onChange={e=>{setId(e.target.value);setReport(null)}}><option value="">Select a student</option>{students.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>{courses.length>0&&<label>Course<select value={courseId} onChange={e=>{setCourseId(e.target.value);setReport(null)}}>{courses.map(c=><option key={c.id} value={c.id}>{c.course}{c.exam_board?` · ${c.exam_board}`:''}{c.tier?` · ${c.tier}`:''}</option>)}</select></label>}<button className="primary btn" disabled={!id||!courseId||loading} onClick={generate}>{loading?'Generating…':'Generate report'}</button></section>
+ {report?<ReportPreview report={report} onShare={share}/>:<section className="reportEmpty noPrint"><span className="eyebrow">PREVIEW</span><h3>Parent-friendly report</h3><p>Select a student and course, then generate a report.</p></section>}</>
 }
 
 function ReportPreview({report,onShare}){
- const {student:s,lessons,assessments,topics,areas=[],strengths=[],focus=[],attendance,progressConfigured,progressStatus,generated}=report
+ const {student:s,lessons,assessments,areas=[],strengths=[],focus=[],attendance,progressConfigured,progressStatus,generated}=report
  const latest=assessments[0]
  return <section className="parentReport" id="parent-report">
   <div className="reportActions noPrint"><button className="ghost" onClick={()=>window.print()}>Print / Save PDF</button>{typeof navigator!=='undefined'&&navigator.share&&<button className="primary" onClick={onShare}>Share summary</button>}</div>

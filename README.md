@@ -1,3 +1,10 @@
+## v10.15.17 — directory + lesson editing
+
+- Fixes duplicate Student directory rendering by separating desktop table and mobile cards correctly.
+- Adds Edit controls for lesson records on student profiles and the master Lesson log.
+- Lesson edits can update course, date, topic, attendance, duration, notes and homework.
+- No database migration required.
+
 # v10.15.13 — timetable course selection
 
 - Timetable lessons now store the exact `student_course_id` for each selected student.
@@ -186,3 +193,36 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Attachment cards are visible before posting and in tutor/student Classwork views.
 - Existing legacy single-file materials and assignments remain supported.
 - Run `supabase/v10_15_9_classwork_attachments.sql` before deploying this build.
+
+
+## v10.15.14 — student lesson logs
+
+- Student profiles now have a course-scoped lesson log and can record a lesson without leaving the profile.
+- The main Lessons page remains the master lesson history and includes student/course filters.
+- Lesson records can now store `student_course_id` so Maths and Science histories stay separate for multi-course students.
+- Run `supabase/v10_15_14_lesson_course_scope.sql` once before deploying.
+
+## v10.15.15 — Course-scoped progress reports
+
+- Parent progress reports now use the selected `student_courses` record rather than the legacy primary course fields on `students`.
+- Multi-course students have a Course selector when generating a report.
+- Topic mastery, curriculum overview, strengths/focus and recent lessons are scoped to the selected course.
+- Uses the same curriculum/module calculation as the student profile, so report mastery matches the live profile.
+- No additional Supabase migration is required for this report fix.
+
+## v10.15.15 routing fix
+
+- Adds a Vercel SPA rewrite so direct visits and refreshes on client-side routes such as `/students/...`, `/timetable`, `/lessons`, and `/reports` load the React app instead of returning Vercel 404.
+
+
+## v10.15.16 lesson deletion
+- Tutors can delete individual lesson records from a student's course-scoped Lesson log.
+- The master Lessons page also exposes a delete action on desktop and mobile.
+- Deletion requires confirmation and removes only the selected lesson record.
+- No database migration is required.
+
+## v10.15.18 group lesson recording
+- Master Lesson log can record one lesson for multiple students at once.
+- Each selected student has an independent course and attendance choice.
+- Saving creates one lesson record per selected student so each profile receives its own history entry.
+- Editing an existing lesson remains student-specific.
