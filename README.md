@@ -226,3 +226,17 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Each selected student has an independent course and attendance choice.
 - Saving creates one lesson record per selected student so each profile receives its own history entry.
 - Editing an existing lesson remains student-specific.
+
+
+## v10.15.19 — Reliable classwork file picker
+
+- Upload tiles now use a real transparent file input over the button rather than a display:none input.
+- Material and assignment file pickers accept files from any local/cloud provider supported by the browser.
+- Selected files continue to appear in the attachment preview before posting.
+
+
+## v10.15.20 — course-specific assessments
+- Assessments and assessment groups are scoped to the selected student course.
+- Tutor, student/parent and progress report views show only assessments for the active course.
+- Existing unscoped assessment data is backfilled automatically only for single-course students.
+- Run `supabase/v10_15_20_assessment_course_scope.sql` once before deploying.

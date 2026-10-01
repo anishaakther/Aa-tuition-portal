@@ -34,6 +34,8 @@ function StudentPortal({data,onDataChange,onSignOut}){
   const activeModules=activeCourse?courseModules.filter(m=>m.student_course_id===activeCourse.id).map(m=>m.module):[]
   const viewStudent=activeCourse?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course)}:s
   const courseTopics=activeCourse?topics.filter(t=>t.student_course_id===activeCourse.id||(!t.student_course_id&&studentCourses.length===1)):topics
+ const courseAssessments=activeCourse?assessments.filter(a=>a.student_course_id===activeCourse.id||(!a.student_course_id&&(studentCourses.length===1||s?.course===activeCourse.course))):assessments
+ const courseAssessmentGroups=activeCourse?assessmentGroups.filter(g=>g.student_course_id===activeCourse.id||(!g.student_course_id&&(studentCourses.length===1||s?.course===activeCourse.course))):assessmentGroups
   const courseResourceTopics=activeCourse?resourceTopics.filter(t=>t.student_course_id===activeCourse.id||(!t.student_course_id&&studentCourses.length===1)):resourceTopics
   const courseResources=activeCourse?resources.filter(r=>r.student_course_id===activeCourse.id||(!r.student_course_id&&studentCourses.length===1)):resources
   const courseAssignments=activeCourse?assignments.filter(a=>a.student_course_id===activeCourse.id||(!a.student_course_id&&studentCourses.length===1)):assignments

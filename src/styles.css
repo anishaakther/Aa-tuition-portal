@@ -371,10 +371,10 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 /* v10.15.9 — Classroom-style attachments */
 .attachmentComposer{gap:16px}
 .attachActions{display:flex;gap:14px;flex-wrap:wrap}
-.attachActionButton{width:82px;height:78px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:var(--ink);font-weight:700!important;transition:.15s ease}
+.attachActionButton{width:82px;height:78px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:var(--ink);font-weight:700!important;transition:.15s ease;position:relative;overflow:hidden}
 .attachActionButton:hover{border-color:#b8aef7;background:#faf9ff;transform:translateY(-1px)}
 .attachActionButton svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.attachActionButton input{display:none!important}
+.attachActionButton input{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;cursor:pointer!important;display:block!important}
 .linkComposer{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fafafe;display:grid;gap:9px}
 .linkComposer input{margin-top:0!important}
 .linkComposer>div{display:flex;gap:10px;align-items:center}

@@ -32,8 +32,10 @@ export default function ParentPortal(){
  const activeModules=activeCourse?courseModules.filter(m=>m.student_course_id===activeCourse.id).map(m=>m.module):[]
  const viewStudent=activeCourse&&s?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course)}:s
  const courseTopics=activeCourse?topics.filter(t=>t.student_course_id===activeCourse.id||(!t.student_course_id&&courses.length===1)):topics
+ const courseAssessments=activeCourse?assessments.filter(a=>a.student_course_id===activeCourse.id||(!a.student_course_id&&(courses.length===1||s?.course===activeCourse.course))):assessments
+ const courseAssessmentGroups=activeCourse?assessmentGroups.filter(g=>g.student_course_id===activeCourse.id||(!g.student_course_id&&(courses.length===1||s?.course===activeCourse.course))):assessmentGroups
  const snap=useMemo(()=>viewStudent?progressSnapshot(viewStudent,courseTopics):null,[viewStudent,courseTopics])
- const groupedAssessments=useMemo(()=>[...assessmentGroups,{id:'uncategorised',name:'Other assessments'}].map(g=>({...g,items:assessments.filter(a=>(a.assessment_group_id||'uncategorised')===g.id)})).filter(g=>g.items.length),[assessmentGroups,assessments])
+ const groupedAssessments=useMemo(()=>[...courseAssessmentGroups,{id:'uncategorised',name:'Other assessments'}].map(g=>({...g,items:courseAssessments.filter(a=>(a.assessment_group_id||'uncategorised')===g.id)})).filter(g=>g.items.length),[courseAssessmentGroups,courseAssessments])
  if(loading)return <div className="loading">Loading parent portal…</div>
  if(!s||!snap)return <div className="portalCard"><h2>No student linked yet</h2><p className="updateText">Ask AA Tuition to link this parent account to a student.</p></div>
  const row={...snap,attendance}
