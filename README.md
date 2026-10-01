@@ -220,3 +220,9 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - The master Lessons page also exposes a delete action on desktop and mobile.
 - Deletion requires confirmation and removes only the selected lesson record.
 - No database migration is required.
+
+## v10.15.18 group lesson recording
+- Master Lesson log can record one lesson for multiple students at once.
+- Each selected student has an independent course and attendance choice.
+- Saving creates one lesson record per selected student so each profile receives its own history entry.
+- Editing an existing lesson remains student-specific.

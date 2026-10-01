@@ -421,3 +421,18 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 
 /* v10.15.16 lesson deletion */
 .rowCard.lesson{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.lessonRowContent{min-width:0;flex:1}.lessonDeleteButton{flex:0 0 auto}.lessonCardActions{display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border,#e5e7eb)}
+
+/* v10.15.18 group lesson recording */
+.wideModal{max-width:860px}
+.fieldLabel{font-weight:700;margin-bottom:4px}
+.smallText{font-size:.88rem;margin:0 0 12px}
+.groupLessonStudents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:330px;overflow:auto;padding-right:3px}
+.groupLessonStudent{border:1px solid var(--border,#deddeb);border-radius:12px;padding:12px;background:#fff}
+.groupLessonStudent.selected{border-color:#b8acf9;background:#faf9ff}
+.studentSelectRow{display:flex!important;align-items:flex-start;gap:10px;margin:0!important;cursor:pointer}
+.studentSelectRow input{width:18px;height:18px;margin-top:2px;flex:none}
+.studentSelectRow span{display:flex;flex-direction:column;gap:2px}
+.studentSelectRow small{font-weight:500;color:var(--muted,#73718a)}
+.groupLessonStudentFields{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:10px}
+.groupLessonStudentFields label{margin:0!important}
+@media(max-width:700px){.groupLessonStudents{grid-template-columns:1fr;max-height:380px}.groupLessonStudentFields{grid-template-columns:1fr}}
