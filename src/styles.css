@@ -414,3 +414,5 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 .recipientOption b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recipientOption small{font-size:10px;color:var(--muted)}
 .disabledField{opacity:.62}
+
+.lessonLogFilters{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}.lessonLogFilters label{min-width:220px;display:grid;gap:7px;font-weight:700}.pageIntro{margin:8px 0 0;color:var(--muted,#6f6d82);max-width:720px}@media(max-width:700px){.lessonLogFilters{display:grid}.lessonLogFilters label{min-width:0}.pageHead .pageIntro{font-size:.95rem}}

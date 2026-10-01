@@ -186,3 +186,23 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Attachment cards are visible before posting and in tutor/student Classwork views.
 - Existing legacy single-file materials and assignments remain supported.
 - Run `supabase/v10_15_9_classwork_attachments.sql` before deploying this build.
+
+
+## v10.15.14 — student lesson logs
+
+- Student profiles now have a course-scoped lesson log and can record a lesson without leaving the profile.
+- The main Lessons page remains the master lesson history and includes student/course filters.
+- Lesson records can now store `student_course_id` so Maths and Science histories stay separate for multi-course students.
+- Run `supabase/v10_15_14_lesson_course_scope.sql` once before deploying.
+
+## v10.15.15 — Course-scoped progress reports
+
+- Parent progress reports now use the selected `student_courses` record rather than the legacy primary course fields on `students`.
+- Multi-course students have a Course selector when generating a report.
+- Topic mastery, curriculum overview, strengths/focus and recent lessons are scoped to the selected course.
+- Uses the same curriculum/module calculation as the student profile, so report mastery matches the live profile.
+- No additional Supabase migration is required for this report fix.
+
+## v10.15.15 routing fix
+
+- Adds a Vercel SPA rewrite so direct visits and refreshes on client-side routes such as `/students/...`, `/timetable`, `/lessons`, and `/reports` load the React app instead of returning Vercel 404.
