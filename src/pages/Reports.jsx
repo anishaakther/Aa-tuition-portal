@@ -23,7 +23,8 @@ export default function Reports(){
    supabase.from('curriculum_topics').select('*').eq('course',activeCourse.course).order('position')
   ])
   const e=le||ae||te||cme||cre;if(e){setError(e.message);setLoading(false);return}
-  const allLessons=l||[], assessments=a||[], allTopics=t||[]
+  const allLessons=l||[], allAssessments=a||[], allTopics=t||[]
+  const assessments=allAssessments.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&(courses.length===1||selected.course===activeCourse.course)))
   const lessons=allLessons.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&courses.length===1))
   const topics=allTopics.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&courses.length===1))
   const valid=lessons.filter(x=>x.attendance!=='cancelled')

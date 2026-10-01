@@ -1,7 +1,7 @@
 {
   "name": "aa-tuition-portal",
   "private": true,
-  "version": "1.15.17",
+  "version": "1.15.24",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,8 @@
     "@supabase/supabase-js": "^2.105.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "tus-js-client": "^4.3.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.3",
