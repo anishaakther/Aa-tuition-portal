@@ -1,3 +1,8 @@
+## v10.15.25 — Student classwork material visibility
+
+- Student access now keeps new attachment-based materials even when legacy `lesson_resources.file_path` is empty.
+- Files and links continue to come from `classwork_attachments`.
+
 # v10.15.21 — reliable classwork file picker
 
 - Replaces label-overlay file inputs with explicit button-triggered native file pickers for Material and Assignment attachments.

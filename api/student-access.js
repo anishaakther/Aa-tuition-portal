@@ -199,12 +199,20 @@ export default async function handler(req, res) {
 
     const resources = []
     for (const resource of resourceRows || []) {
+      const { file_path, ...safeResource } = resource
+      // New classwork materials keep uploaded files in classwork_attachments, so
+      // file_path can legitimately be null. Keep the material row and only
+      // create a legacy signed URL when an old-style file_path exists.
+      if (!file_path) {
+        resources.push({ ...safeResource, url: null })
+        continue
+      }
       try {
-        const signedUrl = await createSignedFileUrl(url, serviceKey, 'lesson-resources', resource.file_path)
-        const { file_path, ...safeResource } = resource
+        const signedUrl = await createSignedFileUrl(url, serviceKey, 'lesson-resources', file_path)
         resources.push({ ...safeResource, url: signedUrl })
       } catch (error) {
-        console.error('resource omitted', resource.id, error?.message || 'unknown')
+        console.error('legacy resource attachment omitted', resource.id, error?.message || 'unknown')
+        resources.push({ ...safeResource, url: null })
       }
     }
 
