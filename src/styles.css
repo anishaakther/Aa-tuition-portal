@@ -436,3 +436,8 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 .groupLessonStudentFields{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-top:10px}
 .groupLessonStudentFields label{margin:0!important}
 @media(max-width:700px){.groupLessonStudents{grid-template-columns:1fr;max-height:380px}.groupLessonStudentFields{grid-template-columns:1fr}}
+
+.nativeFilePicker{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}
+
+/* v10.15.22 — keep native picker hidden while using ref-based trigger */
+.nativeFilePicker{display:none!important}

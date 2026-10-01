@@ -1,3 +1,8 @@
+# v10.15.21 — reliable classwork file picker
+
+- Replaces label-overlay file inputs with explicit button-triggered native file pickers for Material and Assignment attachments.
+- Retains v10.15.20 course-specific assessments and all prior portal fixes.
+
 ## v10.15.17 — directory + lesson editing
 
 - Fixes duplicate Student directory rendering by separating desktop table and mobile cards correctly.
@@ -240,3 +245,7 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Tutor, student/parent and progress report views show only assessments for the active course.
 - Existing unscoped assessment data is backfilled automatically only for single-course students.
 - Run `supabase/v10_15_20_assessment_course_scope.sql` once before deploying.
+
+
+## v10.15.22
+- Upload and Link attachment tiles now have matching styling while retaining the ref-based file picker.
