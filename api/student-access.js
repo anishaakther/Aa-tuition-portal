@@ -161,7 +161,7 @@ export default async function handler(req, res) {
 
     const [assessments, assessmentGroups, lessons, topics, resourceRows, resourceTopics, assignments, classworkAttachments, submissions] = await Promise.all([
       getRows(url, serviceKey, 'assessments', {
-        select: 'id,title,score,total,taken_on,notes,assessment_group_id',
+        select: 'id,student_course_id,title,score,total,taken_on,notes,assessment_group_id',
         student_id: `eq.${student.id}`,
         order: 'taken_on.desc',
       }),
@@ -169,7 +169,7 @@ export default async function handler(req, res) {
         select: 'id,student_course_id,name,position,created_at', student_id: `eq.${student.id}`, order: 'position.asc,created_at.asc',
       }),
       getRows(url, serviceKey, 'lessons', {
-        select: 'id,lesson_date,topic,attendance,duration_minutes,notes,homework',
+        select: 'id,student_course_id,lesson_date,topic,attendance,duration_minutes,notes,homework',
         student_id: `eq.${student.id}`,
         order: 'lesson_date.desc',
       }),

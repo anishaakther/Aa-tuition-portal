@@ -254,3 +254,11 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 
 ## v10.15.22
 - Upload and Link attachment tiles now have matching styling while retaining the ref-based file picker.
+
+
+## v10.15.26 — course-specific home feedback
+
+- Student Home latest lesson and attendance are filtered to the selected course.
+- Tutor updates are stored per `student_courses` record, so Maths and Science can have separate updates.
+- Assignment feedback on Home is filtered to assignments in the selected course.
+- Run `supabase/v10_15_26_course_tutor_updates.sql` once before deploying.
