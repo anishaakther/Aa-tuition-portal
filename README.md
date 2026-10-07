@@ -1,3 +1,10 @@
+# AA Tuition Portal v10.15.27
+
+- Edit Material now edits the full material rather than only the title.
+- Tutors can add new files and links to an existing material, remove existing attachments, change the Classwork topic, and change the related lesson.
+- Existing worksheet links/files remain in place unless explicitly removed.
+- No Supabase migration is required for this release.
+
 ## v10.15.25 — Student classwork material visibility
 
 - Student access now keeps new attachment-based materials even when legacy `lesson_resources.file_path` is empty.
@@ -262,3 +269,10 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Tutor updates are stored per `student_courses` record, so Maths and Science can have separate updates.
 - Assignment feedback on Home is filtered to assignments in the selected course.
 - Run `supabase/v10_15_26_course_tutor_updates.sql` once before deploying.
+
+## v10.15.28 — course-neutral tutor dashboard
+
+- Removes the ambiguous single progress percentage from the main tutor dashboard.
+- Replaces Average progress with total Lessons recorded.
+- Student overview now shows each student's courses, lesson count and attendance.
+- Needs attention is based on low recorded attendance only; detailed course progress remains inside each student profile.
