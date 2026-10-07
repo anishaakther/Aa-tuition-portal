@@ -441,3 +441,13 @@ html,body,#root{max-width:100%;overflow-x:hidden}.shell,.main,.twoCol,.panel,.po
 
 /* v10.15.22 — keep native picker hidden while using ref-based trigger */
 .nativeFilePicker{display:none!important}
+
+/* v10.15.27 — full material editing */
+.editMaterialBody{gap:16px}
+.editMaterialAttachments{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fafaff}
+.editMaterialAttachments h3{margin:0;font-size:14px}
+.editExistingAttachment{display:flex;align-items:center;gap:10px}
+.editExistingAttachment .editAttachmentOpen{flex:1;min-width:0;text-align:left}
+.editExistingAttachment .dangerText{flex:0 0 auto}
+.editAttachActions{margin-top:2px}
+@media(max-width:640px){.editExistingAttachment{align-items:stretch;flex-direction:column}.editExistingAttachment .dangerText{align-self:flex-end}}
