@@ -1,4 +1,4 @@
-export const COURSE_OPTIONS = ['GCSE Mathematics','GCSE Combined Science','A-level Mathematics','A-level Further Mathematics']
+export const COURSE_OPTIONS = ['GCSE Mathematics','GCSE Combined Science','A-level Mathematics','A-level Further Mathematics','A-level Chemistry']
 export const EXAM_BOARDS = ['Edexcel','AQA','OCR','OCR Gateway']
 export const FURTHER_MODULES = [
   'Core Pure 1','Core Pure 2','Further Pure 1','Further Pure 2',
@@ -10,7 +10,7 @@ export const FURTHER_OPTIONAL = FURTHER_MODULES.filter(x=>!FURTHER_CORE.includes
 
 export const blankCourseSettings = course => ({
   course,
-  exam_board:course==='GCSE Combined Science'?'OCR Gateway':'Edexcel',
+  exam_board:course==='GCSE Combined Science'?'OCR Gateway':course==='A-level Chemistry'?'OCR':'Edexcel',
   tier:['GCSE Mathematics','GCSE Combined Science'].includes(course)?'Higher':'',
   target_grade:'', working_grade:'', baseline_progress:'', progress_start_date:'', target_date:'',
   modules:course==='A-level Further Mathematics'?[...FURTHER_CORE]:[]

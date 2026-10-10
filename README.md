@@ -276,3 +276,17 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Replaces Average progress with total Lessons recorded.
 - Student overview now shows each student's courses, lesson count and attendance.
 - Needs attention is based on low recorded attendance only; detailed course progress remains inside each student profile.
+
+## v10.16 — OCR A A-level Chemistry
+- Adds A-level Chemistry as a multi-course option with OCR as its default exam board.
+- Adds OCR Chemistry A H432 curriculum progress across Modules 1–6.
+- Chemistry uses the same course-scoped lessons, classwork, assessments, tutor updates, timetable and student/parent portal flows as existing courses.
+- Run `supabase/v10_16_alevel_chemistry.sql` once before testing Chemistry progress.
+
+
+## v10.16.1 — OCR A Chemistry textbook curriculum
+
+- A-level Chemistry remains OCR A (H432).
+- Chemistry progress now follows the supplied textbook contents exactly: Modules 1–6, Chapters 2–29, and numbered subtopics 2.1–29.6.
+- Modules 1–4 are Year 1 / AS content; Modules 5–6 are Year 2 content.
+- Before first Chemistry use, run `supabase/v10_16_1_alevel_chemistry_textbook_curriculum.sql` once in Supabase SQL Editor. It replaces only A-level Chemistry curriculum rows.

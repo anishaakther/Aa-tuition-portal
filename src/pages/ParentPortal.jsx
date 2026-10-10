@@ -22,7 +22,7 @@ export default function ParentPortal(){
    supabase.from('assessment_groups').select('*').eq('student_id',sid).order('position').order('created_at'),
    supabase.from('lessons').select('*').eq('student_id',sid).order('lesson_date',{ascending:false}),
    supabase.from('topic_progress').select('*').eq('student_id',sid).order('topic'),
-   supabase.from('curriculum_topics').select('*').in('course',['GCSE Combined Science','A-level Mathematics','A-level Further Mathematics']).order('position')
+   supabase.from('curriculum_topics').select('*').in('course',['GCSE Combined Science','A-level Mathematics','A-level Further Mathematics','A-level Chemistry']).order('position')
   ])
   let cm=[];if(c?.length){const {data}=await supabase.from('student_course_modules').select('*').in('student_course_id',c.map(x=>x.id));cm=data||[]}
   setS(student);setCourses(c||[]);setCourseModules(cm);setCurriculumRows(cr||[]);setActiveCourseId(c?.[0]?.id||'');setAssessments(a||[]);setAssessmentGroups(ag||[]);setLessons(l||[]);setTopics(t||[]);setLoading(false)
