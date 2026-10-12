@@ -67,6 +67,12 @@ export default function Timetable(){
   const sessionLinksForSession=id=>sessionStudents.filter(x=>x.session_id===id)
   const studentIdsForSession=id=>sessionLinksForSession(id).map(x=>x.student_id)
   const courseName=id=>courses.find(c=>c.id===id)?.course||''
+  const openMeeting=(url,event)=>{
+    event?.stopPropagation()
+    const target=String(url||'').trim()
+    if(!target)return
+    window.open(target,'_blank','noopener,noreferrer')
+  }
 
   const freeSlotsForDay=day=>{
     if(selectedTutor==='all')return []
@@ -163,7 +169,7 @@ export default function Timetable(){
       {weekDates.map(day=>{const booked=sessionsForDay(day),free=freeSlotsForDay(day);return <article className="timetableDay" key={day.key}>
         <header><div><b>{day.short}</b><span>{niceDate(day.date)}</span></div><button className="dayAdd" onClick={()=>openNew(day)}>+</button></header>
         <div className="dayBody">
-          {booked.map(s=>{const rows=sessionLinksForSession(s.id),ids=rows.map(x=>x.student_id),courseNames=[...new Set(rows.map(x=>courseName(x.student_course_id)).filter(Boolean))];return <button className="bookedSlot" key={s.id} onClick={()=>openEdit(s)}><span className="slotTime">{niceTime(s.start_time)}–{timeFromMins(mins(s.start_time)+Number(s.duration_minutes||60))}</span><b>{ids.map(studentName).join(', ')||'Lesson'}</b><small>{courseNames.length?`${courseNames.join(' / ')} · `:''}{s.mode==='online'?'Online':'In person'}{selectedTutor==='all'?` · ${tutorName(s.tutor_id)}`:''}{ids.length>1?' · Group':''}</small></button>})}
+          {booked.map(s=>{const rows=sessionLinksForSession(s.id),ids=rows.map(x=>x.student_id),courseNames=[...new Set(rows.map(x=>courseName(x.student_course_id)).filter(Boolean))],canJoin=s.mode==='online'&&Boolean(String(s.meeting_url||'').trim());return <div className="bookedSlot" key={s.id} role="button" tabIndex={0} onClick={()=>openEdit(s)} onKeyDown={e=>{if(e.target===e.currentTarget&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openEdit(s)}}}><span className="slotTime">{niceTime(s.start_time)}–{timeFromMins(mins(s.start_time)+Number(s.duration_minutes||60))}</span><b>{ids.map(studentName).join(', ')||'Lesson'}</b><small>{courseNames.length?`${courseNames.join(' / ')} · `:''}{s.mode==='online'?'Online':'In person'}{selectedTutor==='all'?` · ${tutorName(s.tutor_id)}`:''}{ids.length>1?' · Group':''}</small>{canJoin&&<button type="button" className="joinTeamsButton" onClick={e=>openMeeting(s.meeting_url,e)}>Join Teams</button>}</div>})}
           {free.map(t=><button className="freeSlot" key={t} onClick={()=>openNew(day,t)}><span>{t}</span><b>Free</b></button>)}
           {!booked.length&&!free.length&&<div className="closedSlot">{selectedTutor==='all'?'No lessons':'Not available'}</div>}
         </div>
@@ -178,7 +184,7 @@ export default function Timetable(){
       <label>Start time<input type="time" required value={sessionForm.start_time} onChange={e=>setSessionForm({...sessionForm,start_time:e.target.value})}/></label>
       <label>Duration<select value={sessionForm.duration_minutes} onChange={e=>setSessionForm({...sessionForm,duration_minutes:Number(e.target.value)})}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option></select></label>
       <label>Mode<select value={sessionForm.mode} onChange={e=>setSessionForm({...sessionForm,mode:e.target.value})}><option value="online">Online</option><option value="in_person">In person</option></select></label>
-      <label className="full">Teams / meeting link<input placeholder="Optional" value={sessionForm.meeting_url} onChange={e=>setSessionForm({...sessionForm,meeting_url:e.target.value})}/></label>
+      <label className="full">Teams / meeting link<div className="meetingLinkField"><input placeholder="Optional" value={sessionForm.meeting_url} onChange={e=>setSessionForm({...sessionForm,meeting_url:e.target.value})}/>{sessionForm.mode==='online'&&String(sessionForm.meeting_url||'').trim()&&<button type="button" className="ghost meetingLinkButton" onClick={e=>openMeeting(sessionForm.meeting_url,e)}>Open meeting link</button>}</div></label>
       <div className="full studentPicker"><span className="formSectionLabel">Student{sessionForm.student_ids.length>1?'s':''}</span>{availableStudents.length?<div className="studentPickGrid">{availableStudents.map(student=>{const picked=sessionForm.student_ids.includes(student.id);const studentCourses=coursesForStudent(student.id,sessionForm.tutor_id);return <div className={`studentCoursePick ${picked?'picked':''}`} key={student.id}><label className="studentCheck"><input type="checkbox" checked={picked} onChange={()=>toggleStudent(student.id)}/><span><b>{student.name}</b><small>{picked?'Choose the course for this lesson':studentCourses.map(c=>c.course).join(' · ')||student.course}</small></span></label>{picked&&<select aria-label={`${student.name} course`} value={sessionForm.course_by_student?.[student.id]||''} onChange={e=>setStudentCourse(student.id,e.target.value)}>{studentCourses.map(c=><option key={c.id} value={c.id}>{c.course}{c.exam_board?` · ${c.exam_board}`:''}{c.tier?` · ${c.tier}`:''}</option>)}</select>}</div>})}</div>:<p>No students are assigned to this tutor yet.</p>}<small>Select more than one student to create a group lesson. Each student can be linked to the correct course.</small></div>
       <div className="full modalFooter">{editingId&&<button type="button" className="dangerButton" onClick={deleteSession} disabled={saving}>Delete lesson</button>}<button className="primary" disabled={saving}>{saving?'Saving…':editingId?'Save changes':'Add lesson'}</button></div>
     </form></div></div>}

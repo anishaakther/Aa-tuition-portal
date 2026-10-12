@@ -1,3 +1,11 @@
+# AA Tuition Portal v10.16.3
+
+- Tutor timetable cards now show **Join Teams** for online lessons with a saved meeting link.
+- Clicking Join Teams opens the saved meeting URL in a new tab without opening the lesson editor.
+- The existing lesson editor now also includes an **Open meeting link** action beside the Teams URL.
+- Clicking the rest of a lesson card still opens Edit timetable lesson as before.
+- No Supabase migration is required for this release.
+
 # AA Tuition Portal v10.15.27
 
 - Edit Material now edits the full material rather than only the title.
