@@ -2,14 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { areaProgressFor, displayTopicName, progressSnapshot } from '../lib/gcseCurriculum'
 import { statusFor } from '../components/StatusBadge'
+import { useAuth } from '../context/AuthContext'
 
 const masteryLabel = status => ({ red:'Developing', amber:'Progressing', green:'Secure' }[status] || status)
 const formatDate = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—'
 
 export default function Reports(){
+ const {user}=useAuth()
  const [students,setStudents]=useState([]),[id,setId]=useState(''),[courses,setCourses]=useState([]),[courseId,setCourseId]=useState(''),[report,setReport]=useState(null),[loading,setLoading]=useState(false),[error,setError]=useState('')
- useEffect(()=>{supabase.from('students').select('*').eq('active',true).order('name').then(({data,error})=>{setStudents(data||[]);if(error)setError(error.message)})},[])
- useEffect(()=>{let cancelled=false;(async()=>{setReport(null);setCourses([]);setCourseId('');if(!id)return;const {data,error}=await supabase.from('student_courses').select('*').eq('student_id',id).order('created_at');if(cancelled)return;if(error){setError(error.message);return}const rows=data||[];setCourses(rows);setCourseId(rows[0]?.id||'')})().catch(e=>!cancelled&&setError(e.message));return()=>{cancelled=true}},[id])
+ useEffect(()=>{let cancelled=false;(async()=>{const [{data:s,error:se},{data:c,error:ce},{data:ctl,error:ctle},{data:p}]=await Promise.all([supabase.from('students').select('*').eq('active',true).order('name'),supabase.from('student_courses').select('id,student_id').order('created_at'),supabase.from('student_course_tutors').select('student_course_id,tutor_id'),user?.id?supabase.from('profiles').select('role').eq('id',user.id).maybeSingle():Promise.resolve({data:null})]);if(cancelled)return;const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const visibleCourses=owner?(c||[]):(c||[]).filter(course=>(ctl||[]).some(link=>link.student_course_id===course.id&&link.tutor_id===user?.id));const visibleStudentIds=new Set(visibleCourses.map(x=>x.student_id));setStudents(owner?(s||[]):(s||[]).filter(x=>visibleStudentIds.has(x.id)));if(se||ce||ctle)setError((se||ce||ctle)?.message||'Could not load students')})().catch(e=>!cancelled&&setError(e.message));return()=>{cancelled=true}},[user?.id])
+ useEffect(()=>{let cancelled=false;(async()=>{setReport(null);setCourses([]);setCourseId('');if(!id)return;const [{data,error},{data:ctl,error:ctle},{data:p}]=await Promise.all([supabase.from('student_courses').select('*').eq('student_id',id).order('created_at'),supabase.from('student_course_tutors').select('student_course_id,tutor_id'),user?.id?supabase.from('profiles').select('role').eq('id',user.id).maybeSingle():Promise.resolve({data:null})]);if(cancelled)return;if(error||ctle){setError((error||ctle).message);return}const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const rows=owner?(data||[]):(data||[]).filter(course=>(ctl||[]).some(link=>link.student_course_id===course.id&&link.tutor_id===user?.id));setCourses(rows);setCourseId(rows[0]?.id||'')})().catch(e=>!cancelled&&setError(e.message));return()=>{cancelled=true}},[id,user?.id])
  const selected=useMemo(()=>students.find(x=>x.id===id),[students,id])
  const activeCourse=useMemo(()=>courses.find(x=>x.id===courseId)||courses[0]||null,[courses,courseId])
  const generate=async()=>{

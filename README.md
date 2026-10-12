@@ -290,3 +290,10 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Chemistry progress now follows the supplied textbook contents exactly: Modules 1–6, Chapters 2–29, and numbered subtopics 2.1–29.6.
 - Modules 1–4 are Year 1 / AS content; Modules 5–6 are Year 2 content.
 - Before first Chemistry use, run `supabase/v10_16_1_alevel_chemistry_textbook_curriculum.sql` once in Supabase SQL Editor. It replaces only A-level Chemistry curriculum rows.
+
+
+## v10.16.2
+- Course-level tutor visibility: tutors only see courses assigned to them.
+- Student profile attendance and assessment totals are course-specific.
+- Classwork recipient lists respect tutor course assignments.
+- Unconfigured timelines show Set timeline rather than On track.

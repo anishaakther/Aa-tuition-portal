@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 export default function Lessons(){
+ const {user}=useAuth()
  const [students,setStudents]=useState([]),[courses,setCourses]=useState([]),[lessons,setLessons]=useState([]),[open,setOpen]=useState(false),[editingId,setEditingId]=useState(null),[error,setError]=useState(''),[studentFilter,setStudentFilter]=useState(''),[courseFilter,setCourseFilter]=useState('')
  const blank={student_id:'',student_course_id:'',lesson_date:new Date().toISOString().slice(0,10),topic:'',attendance:'present',duration_minutes:60,notes:'',homework:''}
  const [form,setForm]=useState(blank)
  const [selectedStudents,setSelectedStudents]=useState({})
- const load=async()=>{const [{data:s},{data:c,error:ce},{data:l,error:e}]=await Promise.all([supabase.from('students').select('id,name').eq('active',true).order('name'),supabase.from('student_courses').select('id,student_id,course,exam_board,tier').order('created_at'),supabase.from('lessons').select('*').order('lesson_date',{ascending:false})]);setStudents(s||[]);setCourses(c||[]);setLessons(l||[]);if(e||ce)setError((e||ce).message)}
- useEffect(()=>{load()},[])
+ const load=async()=>{const [{data:s},{data:c,error:ce},{data:l,error:e},{data:ctl,error:ctle},{data:p}]=await Promise.all([supabase.from('students').select('id,name').eq('active',true).order('name'),supabase.from('student_courses').select('id,student_id,course,exam_board,tier').order('created_at'),supabase.from('lessons').select('*').order('lesson_date',{ascending:false}),supabase.from('student_course_tutors').select('student_course_id,tutor_id'),user?.id?supabase.from('profiles').select('role').eq('id',user.id).maybeSingle():Promise.resolve({data:null})]);const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const visibleCourses=owner?(c||[]):(c||[]).filter(course=>(ctl||[]).some(link=>link.student_course_id===course.id&&link.tutor_id===user?.id));const visibleIds=new Set(visibleCourses.map(x=>x.id));const visibleStudentIds=new Set(visibleCourses.map(x=>x.student_id));setStudents(owner?(s||[]):(s||[]).filter(x=>visibleStudentIds.has(x.id)));setCourses(visibleCourses);setLessons(owner?(l||[]):(l||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));if(e||ce||ctle)setError((e||ce||ctle).message)}
+ useEffect(()=>{load()},[user?.id])
  const name=id=>students.find(s=>s.id===id)?.name||'Student'
  const course=id=>courses.find(c=>c.id===id)||null
  const studentCourses=studentId=>courses.filter(c=>c.student_id===studentId)
