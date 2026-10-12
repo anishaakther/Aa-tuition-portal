@@ -5,23 +5,24 @@ import { useAuth } from '../context/AuthContext'
 
 export default function Dashboard(){
  const {user}=useAuth()
- const [students,setStudents]=useState([]),[lessons,setLessons]=useState([]),[assignments,setAssignments]=useState([]),[submissions,setSubmissions]=useState([]),[tutorLinks,setTutorLinks]=useState([]),[studentCourses,setStudentCourses]=useState([]),[tutorName,setTutorName]=useState(''),[loading,setLoading]=useState(true)
- useEffect(()=>{(async()=>{const [{data:s},{data:l},{data:a},{data:su},{data:st},{data:sc},{data:p}]=await Promise.all([
+ const [students,setStudents]=useState([]),[lessons,setLessons]=useState([]),[assignments,setAssignments]=useState([]),[submissions,setSubmissions]=useState([]),[tutorLinks,setTutorLinks]=useState([]),[studentCourses,setStudentCourses]=useState([]),[courseTutorLinks,setCourseTutorLinks]=useState([]),[tutorName,setTutorName]=useState(''),[loading,setLoading]=useState(true)
+ useEffect(()=>{(async()=>{const [{data:s},{data:l},{data:a},{data:su},{data:st},{data:sc},{data:ctl},{data:p}]=await Promise.all([
   supabase.from('students').select('*').eq('active',true).order('name'),
-  supabase.from('lessons').select('student_id,attendance'),
-  supabase.from('assignments').select('id,student_id,title,due_date'),
-  supabase.from('assignment_submissions').select('id,assignment_id,student_id,status,submitted_at').eq('status','submitted').order('submitted_at',{ascending:false}),
+  supabase.from('lessons').select('student_id,student_course_id,attendance'),
+  supabase.from('assignments').select('id,student_id,student_course_id,title,due_date'),
+  supabase.from('assignment_submissions').select('id,assignment_id,student_id,student_course_id,status,submitted_at').eq('status','submitted').order('submitted_at',{ascending:false}),
   supabase.from('student_tutors').select('student_id,tutor_id'),
-  supabase.from('student_courses').select('student_id,course'),
-  user?.id?supabase.from('profiles').select('full_name').eq('id',user.id).maybeSingle():Promise.resolve({data:null})
- ]);setStudents(s||[]);setLessons(l||[]);setAssignments(a||[]);setSubmissions(su||[]);setTutorLinks(st||[]);setStudentCourses(sc||[]);setTutorName((p?.full_name||'').trim());setLoading(false)})()},[user?.id])
+  supabase.from('student_courses').select('id,student_id,course'),
+  supabase.from('student_course_tutors').select('student_course_id,tutor_id'),
+  user?.id?supabase.from('profiles').select('full_name,role').eq('id',user.id).maybeSingle():Promise.resolve({data:null})
+ ]);const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const visibleCourses=owner?(sc||[]):(sc||[]).filter(c=>(ctl||[]).some(x=>x.student_course_id===c.id&&x.tutor_id===user?.id));const visibleIds=new Set(visibleCourses.map(x=>x.id));const visibleStudentIds=new Set(visibleCourses.map(x=>x.student_id));setStudents(owner?(s||[]):(s||[]).filter(x=>visibleStudentIds.has(x.id)));setLessons(owner?(l||[]):(l||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setAssignments(owner?(a||[]):(a||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setSubmissions(owner?(su||[]):(su||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setTutorLinks(st||[]);setStudentCourses(visibleCourses);setCourseTutorLinks(ctl||[]);setTutorName((p?.full_name||'').trim());setLoading(false)})()},[user?.id])
  const rows=useMemo(()=>students.map(s=>{
   const ls=lessons.filter(l=>l.student_id===s.id&&l.attendance!=='cancelled')
   const present=ls.filter(l=>l.attendance==='present').length
   const courses=[...new Set(studentCourses.filter(c=>c.student_id===s.id).map(c=>c.course).filter(Boolean))]
   return {...s,courses,lessonCount:ls.length,attendance:ls.length?Math.round(present/ls.length*100):null}
  }),[students,lessons,studentCourses])
- const reviewItems=useMemo(()=>submissions.map(sub=>({sub,student:students.find(s=>s.id===sub.student_id),assignment:assignments.find(a=>a.id===sub.assignment_id)})).filter(x=>x.student&&x.assignment&&tutorLinks.some(l=>l.student_id===x.student.id&&l.tutor_id===user?.id)),[submissions,students,assignments,tutorLinks,user?.id])
+ const reviewItems=useMemo(()=>submissions.map(sub=>({sub,student:students.find(s=>s.id===sub.student_id),assignment:assignments.find(a=>a.id===sub.assignment_id)})).filter(x=>x.student&&x.assignment),[submissions,students,assignments,tutorLinks,user?.id])
  if(loading)return <div className="loading">Loading dashboard…</div>
  const attendanceRows=rows.filter(s=>s.attendance!=null)
  const attendance=attendanceRows.length?Math.round(attendanceRows.reduce((a,s)=>a+s.attendance,0)/attendanceRows.length):null
