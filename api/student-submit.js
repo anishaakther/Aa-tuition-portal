@@ -25,7 +25,7 @@ export default async function handler(req,res){
   if(!session)return res.status(401).json({error:'Your student portal session has expired. Please sign in again.'})
   try{
     const assignmentId=String(body?.assignmentId||'')
-    const assignment=(await rows(base,key,'assignments',{select:'id,student_id,title',id:`eq.${assignmentId}`,student_id:`eq.${session.sid}`,limit:'1'}))[0]
+    const assignment=(await rows(base,key,'assignments',{select:'id,student_id,student_course_id,title',id:`eq.${assignmentId}`,student_id:`eq.${session.sid}`,limit:'1'}))[0]
     if(!assignment)return res.status(404).json({error:'That assignment was not found.'})
     const existing=(await rows(base,key,'assignment_submissions',{select:'id,status,submitted_at',assignment_id:`eq.${assignmentId}`,student_id:`eq.${session.sid}`,limit:'1'}))[0]
 
@@ -69,8 +69,8 @@ export default async function handler(req,res){
       if(existing)existingFiles=await rows(base,key,'assignment_submission_files',{select:'id',submission_id:`eq.${existing.id}`})
       if(!files.length&&!existingFiles.length)return res.status(400).json({error:'Add at least one file before submitting homework.'})
       const submittedAt=new Date().toISOString()
-      if(existing){await write(base,key,'assignment_submissions','PATCH',{status:'submitted',tutor_feedback:null,submitted_at:submittedAt,reviewed_at:null},{id:`eq.${submissionId}`},'return=minimal')}
-      else {const made=await write(base,key,'assignment_submissions','POST',{assignment_id:assignmentId,student_id:session.sid,status:'submitted',submitted_at:submittedAt});submissionId=made[0].id}
+      if(existing){await write(base,key,'assignment_submissions','PATCH',{status:'submitted',student_course_id:assignment.student_course_id||null,tutor_feedback:null,submitted_at:submittedAt,reviewed_at:null},{id:`eq.${submissionId}`},'return=minimal')}
+      else {const made=await write(base,key,'assignment_submissions','POST',{assignment_id:assignmentId,student_id:session.sid,student_course_id:assignment.student_course_id||null,status:'submitted',submitted_at:submittedAt});submissionId=made[0].id}
       if(files.length)await write(base,key,'assignment_submission_files','POST',files.map(f=>({submission_id:submissionId,file_path:f.path,original_name:String(f.name||'file'),mime_type:String(f.type||''),file_size:Number(f.size||0)})),{},'return=minimal')
       const currentFiles=await rows(base,key,'assignment_submission_files',{select:'id,submission_id,original_name,mime_type,file_size,file_path,uploaded_at',submission_id:`eq.${submissionId}`,order:'uploaded_at.asc'})
       const safeFiles=[]

@@ -16,7 +16,7 @@ export default function ParentPortal(){
   const sid=links?.[0]?.student_id
   if(!sid){setLoading(false);return}
   const [{data:student},{data:c},{data:a},{data:ag},{data:l},{data:t},{data:cr}]=await Promise.all([
-   supabase.from('students').select('*').eq('id',sid).single(),
+   supabase.from('students').select('id,name,course,target_grade,working_grade,progress,expected_progress,exam_board,tier,baseline_progress,progress_start_date,target_date,tutor_update,teams_link,active,created_at').eq('id',sid).single(),
    supabase.from('student_courses').select('*').eq('student_id',sid).order('created_at'),
    supabase.from('assessments').select('*').eq('student_id',sid).order('taken_on',{ascending:false}),
    supabase.from('assessment_groups').select('*').eq('student_id',sid).order('position').order('created_at'),

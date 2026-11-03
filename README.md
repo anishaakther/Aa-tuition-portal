@@ -305,3 +305,10 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Student profile attendance and assessment totals are course-specific.
 - Classwork recipient lists respect tutor course assignments.
 - Unconfigured timelines show Set timeline rather than On track.
+
+
+## v10.17.0
+- Restores reliable Dashboard homework-submission review alerts by making submissions course-aware.
+- Adds private parent/guardian contact details to each student profile.
+- Adds Save & WhatsApp parent from the lesson recorder using the saved primary contact number.
+- Run `supabase/v10_17_0_parent_contacts_homework_inbox.sql` before testing this build.
