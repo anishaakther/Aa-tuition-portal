@@ -5,8 +5,8 @@ import { useAuth } from '../context/AuthContext'
 
 export default function Dashboard(){
  const {user}=useAuth()
- const [students,setStudents]=useState([]),[lessons,setLessons]=useState([]),[assignments,setAssignments]=useState([]),[submissions,setSubmissions]=useState([]),[tutorLinks,setTutorLinks]=useState([]),[studentCourses,setStudentCourses]=useState([]),[courseTutorLinks,setCourseTutorLinks]=useState([]),[tutorName,setTutorName]=useState(''),[loading,setLoading]=useState(true)
- useEffect(()=>{(async()=>{const [{data:s},{data:l},{data:a},{data:su},{data:st},{data:sc},{data:ctl},{data:p}]=await Promise.all([
+ const [students,setStudents]=useState([]),[lessons,setLessons]=useState([]),[assignments,setAssignments]=useState([]),[submissions,setSubmissions]=useState([]),[tutorLinks,setTutorLinks]=useState([]),[studentCourses,setStudentCourses]=useState([]),[courseTutorLinks,setCourseTutorLinks]=useState([]),[tutorName,setTutorName]=useState(''),[loading,setLoading]=useState(true),[dashboardError,setDashboardError]=useState('')
+ useEffect(()=>{(async()=>{const [{data:s,error:se},{data:l,error:le},{data:a,error:ae},{data:su,error:sue},{data:st,error:ste},{data:sc,error:sce},{data:ctl,error:ctle},{data:p,error:pe}]=await Promise.all([
   supabase.from('students').select('*').eq('active',true).order('name'),
   supabase.from('lessons').select('student_id,student_course_id,attendance'),
   supabase.from('assignments').select('id,student_id,student_course_id,title,due_date'),
@@ -15,7 +15,7 @@ export default function Dashboard(){
   supabase.from('student_courses').select('id,student_id,course'),
   supabase.from('student_course_tutors').select('student_course_id,tutor_id'),
   user?.id?supabase.from('profiles').select('full_name,role').eq('id',user.id).maybeSingle():Promise.resolve({data:null})
- ]);const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const visibleCourses=owner?(sc||[]):(sc||[]).filter(c=>(ctl||[]).some(x=>x.student_course_id===c.id&&x.tutor_id===user?.id));const visibleIds=new Set(visibleCourses.map(x=>x.id));const visibleStudentIds=new Set(visibleCourses.map(x=>x.student_id));setStudents(owner?(s||[]):(s||[]).filter(x=>visibleStudentIds.has(x.id)));setLessons(owner?(l||[]):(l||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setAssignments(owner?(a||[]):(a||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setSubmissions(owner?(su||[]):(su||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setTutorLinks(st||[]);setStudentCourses(visibleCourses);setCourseTutorLinks(ctl||[]);setTutorName((p?.full_name||'').trim());setLoading(false)})()},[user?.id])
+ ]);const firstError=se||le||ae||sue||ste||sce||ctle||pe;if(firstError)setDashboardError(firstError.message||'Unable to load some dashboard data.');const owner=p?.role==='owner'||user?.email==='aamathstutor@outlook.com';const visibleCourses=owner?(sc||[]):(sc||[]).filter(c=>(ctl||[]).some(x=>x.student_course_id===c.id&&x.tutor_id===user?.id));const visibleIds=new Set(visibleCourses.map(x=>x.id));const visibleStudentIds=new Set(visibleCourses.map(x=>x.student_id));const assignmentCourse=Object.fromEntries((a||[]).map(x=>[x.id,x.student_course_id]));setStudents(owner?(s||[]):(s||[]).filter(x=>visibleStudentIds.has(x.id)));setLessons(owner?(l||[]):(l||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setAssignments(owner?(a||[]):(a||[]).filter(x=>x.student_course_id&&visibleIds.has(x.student_course_id)));setSubmissions(owner?(su||[]):(su||[]).filter(x=>{const cid=x.student_course_id||assignmentCourse[x.assignment_id];return cid&&visibleIds.has(cid)}));setTutorLinks(st||[]);setStudentCourses(visibleCourses);setCourseTutorLinks(ctl||[]);setTutorName((p?.full_name||'').trim());setLoading(false)})()},[user?.id])
  const rows=useMemo(()=>students.map(s=>{
   const ls=lessons.filter(l=>l.student_id===s.id&&l.attendance!=='cancelled')
   const present=ls.filter(l=>l.attendance==='present').length
@@ -31,6 +31,7 @@ export default function Dashboard(){
  const accountFallback=user?.email==='aamathstutor@outlook.com'?'Anisha':user?.email==='wahid_413@yahoo.com'?'Waheed':'Tutor'
  const firstName=(tutorName||accountFallback).split(/\s+/)[0]
  return <><div className="pageHead tutorWelcomeHead"><div><span className="eyebrow">WELCOME</span><h1>{firstName}</h1></div><Link className="primary btn" to="/students">+ Add student</Link></div>
+ {dashboardError&&<div className="errorBox">{dashboardError}</div>}
  <div className="statGrid">
   <Stat label="Active students" value={rows.length} note="Across all courses"/>
   <Stat label="Lessons recorded" value={lessonCount} note="All active students"/>
