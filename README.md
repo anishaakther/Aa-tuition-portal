@@ -1,4 +1,4 @@
-## V10.18.1
+## V10.18.2
 - Simplified homework: every assignment accepts portal uploads; tutors can manually mark complete/not completed.
 - Portal-off students remain in internal attendance/progress and show a Portal off badge.
 - Goodnotes workflow unchanged.
