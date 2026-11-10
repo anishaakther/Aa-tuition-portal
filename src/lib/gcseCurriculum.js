@@ -40,6 +40,7 @@ export const isCombinedScience = student => /gcse\s*combined\s*science/i.test(st
 export const isFurtherMaths = student => /(further\s*(mathematics|maths)|a[- ]?level\s*fm)/i.test(student?.course || '')
 export const isALevelMaths = student => !isFurtherMaths(student) && /(a[- ]?level.*(mathematics|maths)|(mathematics|maths).*a[- ]?level)/i.test(student?.course || '')
 export const isALevelChemistry = student => /a[- ]?level.*chemistry|chemistry.*a[- ]?level/i.test(student?.course || '')
+export const isALevelPhysics = student => /a[- ]?level.*physics|physics.*a[- ]?level/i.test(student?.course || '')
 
 const topicKey=(course,moduleKey,chapterNumber,topic)=>`${course}|${moduleKey}|${chapterNumber}|${topic.number}|${topic.name}`
 const selectedFurtherModules=student=>{
@@ -56,8 +57,8 @@ const decorateModules=(course,modules,selected)=>modules.filter(m=>selected.incl
 }))
 
 export const availableCurriculumModules=student=>isFurtherMaths(student)?FURTHER_MATHS_MODULES:isALevelMaths(student)?A_LEVEL_MATHS_MODULES:[]
-export const curriculumTitle=student=>isGcseMaths(student)?'GCSE Mathematics curriculum mastery':isCombinedScience(student)?'GCSE Combined Science curriculum mastery':isFurtherMaths(student)?'A-Level Further Maths curriculum mastery':isALevelMaths(student)?'A-Level Maths curriculum mastery':isALevelChemistry(student)?'A-Level Chemistry curriculum mastery':'Curriculum mastery'
-export const hasAutomaticCurriculum = student => ((isGcseMaths(student)||isCombinedScience(student)) && ['foundation','higher'].includes((student?.tier || '').toLowerCase())) || isALevelMaths(student) || isFurtherMaths(student) || isALevelChemistry(student)
+export const curriculumTitle=student=>isGcseMaths(student)?'GCSE Mathematics curriculum mastery':isCombinedScience(student)?'GCSE Combined Science curriculum mastery':isFurtherMaths(student)?'A-Level Further Maths curriculum mastery':isALevelMaths(student)?'A-Level Maths curriculum mastery':isALevelChemistry(student)?'A-Level Chemistry curriculum mastery':isALevelPhysics(student)?'A-Level Physics curriculum mastery':'Curriculum mastery'
+export const hasAutomaticCurriculum = student => ((isGcseMaths(student)||isCombinedScience(student)) && ['foundation','higher'].includes((student?.tier || '').toLowerCase())) || isALevelMaths(student) || isFurtherMaths(student) || isALevelChemistry(student) || isALevelPhysics(student)
 
 export function curriculumFor(student){
   if(isGcseMaths(student)){
@@ -86,10 +87,10 @@ export function curriculumFor(student){
       }
     })
   }
-  if((isFurtherMaths(student)||isALevelMaths(student)||isALevelChemistry(student))&&dbRows.length){
-    const selected=isFurtherMaths(student)?(Array.isArray(student?.curriculum_modules)&&student.curriculum_modules.length?student.curriculum_modules:['Core Pure 1','Core Pure 2']):null
+  if((isFurtherMaths(student)||isALevelMaths(student)||isALevelChemistry(student)||isALevelPhysics(student))&&dbRows.length){
+    const selected=isFurtherMaths(student)?(Array.isArray(student?.curriculum_modules)&&student.curriculum_modules.length?student.curriculum_modules:['Core Pure 1','Core Pure 2']):isALevelPhysics(student)?(Array.isArray(student?.curriculum_modules)&&student.curriculum_modules.length?student.curriculum_modules:['1 Measurements and their errors','2 Particles and radiation','3 Waves','4 Mechanics and materials','5 Electricity','6 Further mechanics and thermal physics','7 Fields and their consequences','8 Nuclear physics']):null
     const filtered=selected?dbRows.filter(r=>selected.includes(r.module)):dbRows
-    const preferred=isFurtherMaths(student)?['Core Pure 1','Core Pure 2','Further Pure 1','Further Pure 2','Further Statistics 1','Further Statistics 2','Further Mechanics 1','Further Mechanics 2','Decision Mathematics 1','Decision Mathematics 2']:isALevelChemistry(student)?['Module 1 – Development of practical skills in chemistry','Module 2 – Foundations in chemistry','Module 3 – Periodic table and energy','Module 4 – Core organic chemistry','Module 5 – Physical chemistry and transition elements','Module 6 – Organic chemistry and analysis']:['Pure Year 1','Pure Year 2','Statistics Year 1','Mechanics Year 1','Statistics Year 2','Mechanics Year 2']
+    const preferred=isFurtherMaths(student)?['Core Pure 1','Core Pure 2','Further Pure 1','Further Pure 2','Further Statistics 1','Further Statistics 2','Further Mechanics 1','Further Mechanics 2','Decision Mathematics 1','Decision Mathematics 2']:isALevelChemistry(student)?['Module 1 – Development of practical skills in chemistry','Module 2 – Foundations in chemistry','Module 3 – Periodic table and energy','Module 4 – Core organic chemistry','Module 5 – Physical chemistry and transition elements','Module 6 – Organic chemistry and analysis']:isALevelPhysics(student)?['1 Measurements and their errors','2 Particles and radiation','3 Waves','4 Mechanics and materials','5 Electricity','6 Further mechanics and thermal physics','7 Fields and their consequences','8 Nuclear physics','9 Astrophysics','10 Medical physics','11 Engineering physics','12 Turning points in physics','13 Electronics']:['Pure Year 1','Pure Year 2','Statistics Year 1','Mechanics Year 1','Statistics Year 2','Mechanics Year 2']
     const present=[...new Set(filtered.map(r=>r.module))]
     const modules=[...preferred.filter(m=>present.includes(m)),...present.filter(m=>!preferred.includes(m))]
     return modules.map(moduleName=>{
