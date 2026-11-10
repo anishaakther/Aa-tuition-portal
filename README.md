@@ -312,3 +312,15 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 - Adds private parent/guardian contact details to each student profile.
 - Adds Save & WhatsApp parent from the lesson recorder using the saved primary contact number.
 - Run `supabase/v10_17_0_parent_contacts_homework_inbox.sql` before testing this build.
+
+
+## v10.18.0
+- Adds AQA A-level Physics (7408) curriculum.
+- Adds per-course Goodnotes notebook links.
+- Adds optional per-course student portal access.
+- Renames the teaching workflow around Resources & Homework.
+- Homework can be checked by portal upload, Goodnotes, in lesson, or with no upload required.
+- Tutors can mark homework complete/not completed without a student upload.
+- Parent contact saves are verified against Supabase.
+
+Run `supabase/v10_18_0_workflow_physics_goodnotes.sql` before testing the build.

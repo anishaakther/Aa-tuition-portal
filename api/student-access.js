@@ -133,11 +133,14 @@ export default async function handler(req, res) {
     if (!student) return res.status(401).json({ error: 'That access code was not recognised.' })
 
     const [studentCourses, curriculumRows] = await Promise.all([
-      getRows(url, serviceKey, 'student_courses', { select: '*', student_id: `eq.${student.id}`, order: 'created_at.asc' }),
+      getRows(url, serviceKey, 'student_courses', { select: '*', student_id: `eq.${student.id}`, portal_enabled: 'eq.true', order: 'created_at.asc' }),
       getRows(url, serviceKey, 'curriculum_topics', { select: '*', order: 'position.asc' }),
     ])
     let courseModules = []
     if (studentCourses?.length) courseModules = await getRows(url, serviceKey, 'student_course_modules', { select: '*', student_course_id: `in.(${studentCourses.map(x=>x.id).join(',')})` })
+    if (!studentCourses?.length) return res.status(403).json({ error: 'Portal access is not enabled for this student.' })
+    const portalCourseIds = new Set(studentCourses.map(x=>x.id))
+    const portalScope = rows => (rows || []).filter(x => !x.student_course_id || portalCourseIds.has(x.student_course_id))
 
     // Timetable is the single source of truth for the student's next lesson and meeting link.
     // Keep this read isolated so a permissions/configuration problem cannot lock the student out of the rest of the portal.
@@ -153,7 +156,7 @@ export default async function handler(req, res) {
           id: `in.(${sessionIds.join(',')})`, active: 'eq.true', order: 'start_time.asc',
         })
         const courseBySession = Object.fromEntries((sessionLinks || []).map(x => [x.session_id, x.student_course_id || null]))
-        timetableSessions = (timetableSessions || []).map(x => ({ ...x, student_course_id: courseBySession[x.id] || null }))
+        timetableSessions = (timetableSessions || []).map(x => ({ ...x, student_course_id: courseBySession[x.id] || null })).filter(x=>!x.student_course_id||portalCourseIds.has(x.student_course_id))
       }
     } catch (error) {
       console.warn('timetable read unavailable', error?.message || 'unknown')
@@ -187,13 +190,13 @@ export default async function handler(req, res) {
         select: 'id,student_course_id,name,position,created_at', student_id: `eq.${student.id}`, order: 'position.asc,created_at.asc',
       }),
       getRows(url, serviceKey, 'assignments', {
-        select: 'id,student_course_id,title,instructions,due_date,attachment_path,attachment_name,created_at,resource_topic_id', student_id: `eq.${student.id}`, order: 'created_at.desc',
+        select: 'id,student_course_id,title,instructions,due_date,attachment_path,attachment_name,created_at,resource_topic_id,submission_method', student_id: `eq.${student.id}`, order: 'created_at.desc',
       }),
       getRows(url, serviceKey, 'classwork_attachments', {
         select: 'id,student_course_id,parent_type,parent_id,attachment_type,title,file_path,original_name,mime_type,file_size,storage_bucket,url,created_at', student_id: `eq.${student.id}`, order: 'created_at.asc',
       }),
       getRows(url, serviceKey, 'assignment_submissions', {
-        select: 'id,assignment_id,status,tutor_feedback,submitted_at,reviewed_at', student_id: `eq.${student.id}`, order: 'submitted_at.desc',
+        select: 'id,assignment_id,student_course_id,status,tutor_feedback,submitted_at,reviewed_at', student_id: `eq.${student.id}`, order: 'submitted_at.desc',
       }),
     ])
 
@@ -239,7 +242,10 @@ export default async function handler(req, res) {
       }
     }
 
-    const submissionIds = (submissions || []).map(x => x.id)
+    const portalAssignments = portalScope(safeAssignments)
+    const portalAssignmentIds = new Set(portalAssignments.map(x=>x.id))
+    const portalSubmissions = (submissions || []).filter(x=>portalAssignmentIds.has(x.assignment_id))
+    const submissionIds = portalSubmissions.map(x => x.id)
     let submissionFiles = []
     if (submissionIds.length) {
       const raw = await getRows(url, serviceKey, 'assignment_submission_files', {
@@ -260,15 +266,15 @@ export default async function handler(req, res) {
       studentCourses: studentCourses || [],
       courseModules: courseModules || [],
       curriculumRows: curriculumRows || [],
-      assessments: assessments || [],
-      assessmentGroups: assessmentGroups || [],
-      lessons: lessons || [],
-      topics: topics || [],
-      resources,
-      resourceTopics: resourceTopics || [],
-      assignments: safeAssignments,
-      classworkAttachments: safeClassworkAttachments,
-      submissions: submissions || [],
+      assessments: portalScope(assessments),
+      assessmentGroups: portalScope(assessmentGroups),
+      lessons: portalScope(lessons),
+      topics: portalScope(topics),
+      resources: portalScope(resources),
+      resourceTopics: portalScope(resourceTopics),
+      assignments: portalAssignments,
+      classworkAttachments: portalScope(safeClassworkAttachments),
+      submissions: portalSubmissions,
       submissionFiles,
       timetableSessions,
       sessionToken: createStudentSession(student.id, serviceKey),
