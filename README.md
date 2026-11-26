@@ -331,7 +331,7 @@ Run `supabase/v10_14_student_timetable_access.sql` once before testing the v10.1
 Run `supabase/v10_18_0_workflow_physics_goodnotes.sql` before testing the build.
 
 
-## V10.21.0 – exam-board textbook curricula
+## V10.21.1 – exam-board textbook curricula
 - A-level Biology: OCR and AQA schemes are exam-board aware.
 - A-level Chemistry: OCR, AQA and Edexcel schemes are exam-board aware.
 - A-level Further Mathematics: OCR uses the six-chapter OCR scheme supplied by AA Tuition; existing non-OCR module selection remains unchanged.

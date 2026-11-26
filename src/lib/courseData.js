@@ -1,5 +1,15 @@
 export const COURSE_OPTIONS = ['GCSE Mathematics','GCSE Combined Science','A-level Mathematics','A-level Further Mathematics','A-level Chemistry','A-level Physics','A-level Biology']
 export const EXAM_BOARDS = ['Edexcel','AQA','OCR','OCR Gateway']
+export const EXAM_BOARDS_BY_COURSE = {
+  'GCSE Mathematics':['Edexcel','AQA','OCR'],
+  'GCSE Combined Science':['OCR Gateway'],
+  'A-level Mathematics':['Edexcel','AQA','OCR'],
+  'A-level Further Mathematics':['Edexcel','OCR'],
+  'A-level Chemistry':['OCR','AQA','Edexcel'],
+  'A-level Physics':['AQA'],
+  'A-level Biology':['OCR','AQA']
+}
+export const examBoardsForCourse = course => EXAM_BOARDS_BY_COURSE[course] || EXAM_BOARDS
 export const FURTHER_MODULES = [
   'Core Pure 1','Core Pure 2','Further Pure 1','Further Pure 2',
   'Further Statistics 1','Further Statistics 2','Further Mechanics 1','Further Mechanics 2',

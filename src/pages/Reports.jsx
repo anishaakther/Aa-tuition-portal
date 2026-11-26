@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { areaProgressFor, displayTopicName, progressSnapshot } from '../lib/gcseCurriculum'
+import { areaProgressFor, displayTopicName, filterTopicRowsForCurriculum, progressSnapshot } from '../lib/gcseCurriculum'
 import { statusFor } from '../components/StatusBadge'
 import { useAuth } from '../context/AuthContext'
 
@@ -32,13 +32,14 @@ export default function Reports(){
   const valid=lessons.filter(x=>x.attendance!=='cancelled')
   const attendance=valid.length?Math.round(valid.filter(x=>x.attendance==='present').length/valid.length*100):null
   const viewStudent={...selected,...activeCourse,id:selected.id,curriculum_modules:(cm||[]).map(x=>x.module),curriculum_rows:(cr||[]).filter(r=>!r.exam_board||!activeCourse.exam_board||r.exam_board===activeCourse.exam_board)}
-  const student=progressSnapshot(viewStudent,topics)
+  const activeTopics=filterTopicRowsForCurriculum(viewStudent,topics)
+  const student=progressSnapshot(viewStudent,activeTopics)
   const progressConfigured=student.automatic||Number(student.progress)!==0||Number(student.expected_progress)!==0
   const progressStatus=student.expectedConfigured?statusFor(student):null
-  const areas=student.automatic?areaProgressFor(viewStudent,topics):[]
-  const strengths=[...topics].filter(x=>x.status==='green').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0)).slice(0,3)
-  const focus=[...topics].filter(x=>x.status==='amber'||x.status==='red').sort((a,b)=>{const rank={amber:0,red:1};return rank[a.status]-rank[b.status]||new Date(b.updated_at||0)-new Date(a.updated_at||0)}).slice(0,3)
-  setReport({student,lessons,assessments,topics,areas,strengths,focus,attendance,progressConfigured,progressStatus,generated:new Date()})
+  const areas=student.automatic?areaProgressFor(viewStudent,activeTopics):[]
+  const strengths=[...activeTopics].filter(x=>x.status==='green').sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0)).slice(0,3)
+  const focus=[...activeTopics].filter(x=>x.status==='amber'||x.status==='red').sort((a,b)=>{const rank={amber:0,red:1};return rank[a.status]-rank[b.status]||new Date(b.updated_at||0)-new Date(a.updated_at||0)}).slice(0,3)
+  setReport({student,lessons,assessments,topics:activeTopics,areas,strengths,focus,attendance,progressConfigured,progressStatus,generated:new Date()})
   setLoading(false)
  }
  const share=async()=>{
