@@ -22,7 +22,7 @@ export default function ParentPortal(){
    supabase.from('assessment_groups').select('*').eq('student_id',sid).order('position').order('created_at'),
    supabase.from('lessons').select('*').eq('student_id',sid).order('lesson_date',{ascending:false}),
    supabase.from('topic_progress').select('*').eq('student_id',sid).order('topic'),
-   supabase.from('curriculum_topics').select('*').in('course',['GCSE Combined Science','A-level Mathematics','A-level Further Mathematics','A-level Chemistry','A-level Physics']).order('position')
+   supabase.from('curriculum_topics').select('*').in('course',['GCSE Combined Science','A-level Mathematics','A-level Further Mathematics','A-level Chemistry','A-level Physics','A-level Biology']).order('position')
   ])
   let cm=[];if(c?.length){const {data}=await supabase.from('student_course_modules').select('*').in('student_course_id',c.map(x=>x.id));cm=data||[]}
   setS(student);setCourses(c||[]);setCourseModules(cm);setCurriculumRows(cr||[]);setActiveCourseId(c?.[0]?.id||'');setAssessments(a||[]);setAssessmentGroups(ag||[]);setLessons(l||[]);setTopics(t||[]);setLoading(false)
@@ -30,7 +30,7 @@ export default function ParentPortal(){
  const attendance=useMemo(()=>{const ls=lessons.filter(l=>l.attendance!=='cancelled');return ls.length?Math.round(ls.filter(l=>l.attendance==='present').length/ls.length*100):null},[lessons])
  const activeCourse=courses.find(c=>c.id===activeCourseId)||courses[0]||null
  const activeModules=activeCourse?courseModules.filter(m=>m.student_course_id===activeCourse.id).map(m=>m.module):[]
- const viewStudent=activeCourse&&s?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course)}:s
+ const viewStudent=activeCourse&&s?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course&&(!r.exam_board||!activeCourse.exam_board||r.exam_board===activeCourse.exam_board))}:s
  const courseTopics=activeCourse?topics.filter(t=>t.student_course_id===activeCourse.id||(!t.student_course_id&&courses.length===1)):topics
  const courseAssessments=activeCourse?assessments.filter(a=>a.student_course_id===activeCourse.id||(!a.student_course_id&&(courses.length===1||s?.course===activeCourse.course))):assessments
  const courseAssessmentGroups=activeCourse?assessmentGroups.filter(g=>g.student_course_id===activeCourse.id||(!g.student_course_id&&(courses.length===1||s?.course===activeCourse.course))):assessmentGroups

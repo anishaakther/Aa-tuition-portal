@@ -31,7 +31,7 @@ function StudentPortal({data,onDataChange,onSignOut}){
   const [tab,setTab]=useState('home'),[openGroups,setOpenGroups]=useState({}),[openAssessmentGroups,setOpenAssessmentGroups]=useState({}),[openItem,setOpenItem]=useState(''),[uploading,setUploading]=useState(''),[uploadError,setUploadError]=useState(''),[classworkFilter,setClassworkFilter]=useState('all')
   const activeCourse=studentCourses.find(c=>c.id===activeCourseId)||studentCourses[0]||null
   const activeModules=activeCourse?courseModules.filter(m=>m.student_course_id===activeCourse.id).map(m=>m.module):[]
-  const viewStudent=activeCourse?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course)}:s
+  const viewStudent=activeCourse?{...s,...activeCourse,id:s.id,curriculum_modules:activeModules,curriculum_rows:curriculumRows.filter(r=>r.course===activeCourse.course&&(!r.exam_board||!activeCourse.exam_board||r.exam_board===activeCourse.exam_board))}:s
   const courseTopics=activeCourse?topics.filter(t=>t.student_course_id===activeCourse.id||(!t.student_course_id&&studentCourses.length===1)):topics
  const courseAssessments=activeCourse?assessments.filter(a=>a.student_course_id===activeCourse.id||(!a.student_course_id&&(studentCourses.length===1||s?.course===activeCourse.course))):assessments
  const courseAssessmentGroups=activeCourse?assessmentGroups.filter(g=>g.student_course_id===activeCourse.id||(!g.student_course_id&&(studentCourses.length===1||s?.course===activeCourse.course))):assessmentGroups

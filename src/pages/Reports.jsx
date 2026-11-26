@@ -31,7 +31,7 @@ export default function Reports(){
   const topics=allTopics.filter(x=>x.student_course_id===activeCourse.id||(!x.student_course_id&&courses.length===1))
   const valid=lessons.filter(x=>x.attendance!=='cancelled')
   const attendance=valid.length?Math.round(valid.filter(x=>x.attendance==='present').length/valid.length*100):null
-  const viewStudent={...selected,...activeCourse,id:selected.id,curriculum_modules:(cm||[]).map(x=>x.module),curriculum_rows:cr||[]}
+  const viewStudent={...selected,...activeCourse,id:selected.id,curriculum_modules:(cm||[]).map(x=>x.module),curriculum_rows:(cr||[]).filter(r=>!r.exam_board||!activeCourse.exam_board||r.exam_board===activeCourse.exam_board)}
   const student=progressSnapshot(viewStudent,topics)
   const progressConfigured=student.automatic||Number(student.progress)!==0||Number(student.expected_progress)!==0
   const progressStatus=student.expectedConfigured?statusFor(student):null
